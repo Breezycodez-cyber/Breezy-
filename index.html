@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Real Estate Assistant</title>
+  <link rel="stylesheet" href="style.css">
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+
+<body>
+
+<!-- ================= AUTH ================= -->
+
+<section id="authScreen" class="auth-screen">
+
+  <div class="auth-card">
+
+    <div class="brand">
+      <div class="brand-icon"><img style="height: 150px;" src="eezy.png" alt="logo"></div>
+      <h1> Breezy Real Estate Assistant</h1>
+      <p>Manage leads. Match properties. Close deals.</p>
+    </div>
+
+    <div class="auth-tabs">
+      <button id="loginTab" class="tab active">Login</button>
+      <button id="signupTab" class="tab">Create Account</button>
+    </div>
+
+    <form id="authForm">
+
+      <label>Email</label>
+      <input
+        type="email"
+        id="authEmail"
+        placeholder="you@example.com"
+        required
+      >
+
+      <label>Password</label>
+      <input
+        type="password"
+        id="authPassword"
+        placeholder="Minimum 6 characters"
+        minlength="6"
+        required
+      >
+
+      <button
+        type="submit"
+        id="authSubmit"
+        class="primary-btn full"
+      >
+        Login
+      </button>
+
+    </form>
+
+    <div id="authMessage" class="message"></div>
+
+  </div>
+
+</section>
+
+
+<!-- ================= APPLICATION ================= -->
+
+<section id="appScreen" class="hidden">
+
+  <header class="topbar">
+
+    <div class="brand-small">
+      <span><img style="height: 150px;" src="eezy.png" alt="logo"></span>
+      <div>
+        <strong>Real Estate Assistant</strong>
+        <small id="userEmail"></small>
+      </div>
+    </div>
+
+    <div class="top-actions">
+
+      <span id="roleBadge" class="role-badge">
+        Agent
+      </span>
+
+      <button id="logoutBtn" class="logout-btn">
+        Logout
+      </button>
+
+    </div>
+
+  </header>
+
+
+  <main class="container">
+
+
+    <!-- ================= AGENT DASHBOARD ================= -->
+
+    <section id="agentDashboard">
+
+      <div class="page-title">
+        <div>
+          <h1>Agent Dashboard</h1>
+          <p>Manage your buyers, properties and follow-ups.</p>
+        </div>
+      </div>
+
+
+      <!-- STATS -->
+
+      <div class="dashboard-grid">
+
+        <div class="stat-card">
+          <span> <img style="height: 50px;" src="L.png" alt=""> Leads</span>
+          <strong id="leadCount">0</strong>
+        </div>
+
+        <div class="stat-card">
+          <span> <img style="height: 50px;" src="pro.jpg" alt=""> Properties</span>
+          <strong id="propertyCount">0</strong>
+        </div>
+
+        <div class="stat-card">
+          <span> <img style="height: 50px;" src="follow-up.png" alt=""> Follow-ups</span>
+          <strong id="followupCount">0</strong>
+        </div>
+
+        <div class="stat-card">
+          <span> <img style="height: 50px;" src="fire.jpg" alt=""> Hot Leads</span>
+          <strong id="hotLeadCount">0</strong>
+        </div>
+
+      </div>
+
+
+      <!-- LEADS -->
+
+      <section class="panel">
+
+        <div class="panel-title">
+          <div>
+            <h2> Lead Manager</h2>
+            <p>Save potential buyers and tenants.</p>
+          </div>
+        </div>
+
+
+        <form id="leadForm">
+
+          <input type="hidden" id="leadId">
+
+          <div class="form-grid">
+
+            <div>
+              <label>Name</label>
+              <input id="leadName" required>
+            </div>
+
+            <div>
+              <label>Phone</label>
+              <input id="leadPhone" required>
+            </div>
+
+            <div>
+              <label>Purpose</label>
+              <select id="leadPurpose">
+                <option value="Rent">Rent</option>
+                <option value="Buy">Buy</option>
+              </select>
+            </div>
+
+            <div>
+              <label>Property Type</label>
+              <select id="leadPropertyType">
+                <option value="Apartment">Apartment</option>
+                <option value="House">House</option>
+                <option value="Land">Land</option>
+                <option value="Office">Office</option>
+                <option value="Shop">Shop</option>
+                <option value="Other">Other</option>
+              </select>
+            </div>
+
+            <div>
+              <label>Location</label>
+              <input id="leadLocation" required>
+            </div>
+
+            <div>
+              <label>Budget</label>
+              <input
+                type="number"
+                id="leadBudget"
+                min="0"
+                required
+              >
+            </div>
+
+            <div>
+              <label>Bedrooms</label>
+              <input
+                type="number"
+                id="leadBedrooms"
+                min="0"
+                value="0"
+              >
+            </div>
+
+            <div>
+              <label>Status</label>
+              <select id="leadStatus">
+                <option value="Cold">Cold</option>
+                <option value="Warm">Warm</option>
+                <option value="Hot">Hot</option>
+              </select>
+            </div>
+
+            <div>
+              <label>Follow-up</label>
+              <input type="date" id="followupDate">
+            </div>
+
+          </div>
+
+          <label>Notes</label>
+
+          <textarea
+            id="leadNotes"
+            rows="3"
+            placeholder="Additional requirements..."
+          ></textarea>
+
+          <button class="primary-btn" type="submit">
+            Save Lead
+          </button>
+
+          <button
+            type="button"
+            id="cancelLeadEdit"
+            class="secondary-btn hidden"
+          >
+            Cancel
+          </button>
+
+        </form>
+
+
+        <div class="search-row">
+
+          <input
+            id="leadSearch"
+            placeholder=" Search leads..."
+          >
+
+          <select id="leadFilter">
+            <option value="All">All Statuses</option>
+            <option value="Hot">Hot</option>
+            <option value="Warm">Warm</option>
+            <option value="Cold">Cold</option>
+          </select>
+
+        </div>
+
+        <div id="leadList"></div>
+
+      </section>
+
+
+      <!-- PROPERTIES -->
+
+      <section class="panel">
+
+        <div class="panel-title">
+          <div>
+            <h2> Property Manager</h2>
+            <p>Add properties and find matching customers.</p>
+          </div>
+        </div>
+
+
+        <form id="propertyForm">
+
+          <input type="hidden" id="propertyId">
+
+          <div class="form-grid">
+
+            <div>
+              <label>Property Name</label>
+              <input id="propertyName" required>
+            </div>
+
+            <div>
+              <label>Property Type</label>
+              <select id="propertyType">
+                <option value="Apartment">Apartment</option>
+                <option value="House">House</option>
+                <option value="Land">Land</option>
+                <option value="Office">Office</option>
+                <option value="Shop">Shop</option>
+                <option value="Other">Other</option>
+              </select>
+            </div>
+
+            <div>
+              <label>Location</label>
+              <input id="propertyLocation" required>
+            </div>
+
+            <div>
+              <label>Price</label>
+              <input
+                type="number"
+                id="propertyPrice"
+                min="0"
+                required
+              >
+            </div>
+
+            <div>
+              <label>Bedrooms</label>
+              <input
+                type="number"
+                id="propertyBedrooms"
+                min="0"
+                value="0"
+              >
+            </div>
+
+            <div>
+              <label>Status</label>
+              <select id="propertyStatus">
+                <option value="Available">Available</option>
+                <option value="Unavailable">Unavailable</option>
+                <option value="Sold">Sold</option>
+                <option value="Rented">Rented</option>
+              </select>
+            </div>
+
+          </div>
+
+          <button class="primary-btn" type="submit">
+            Save Property
+          </button>
+
+          <button
+            type="button"
+            id="cancelPropertyEdit"
+            class="secondary-btn hidden"
+          >
+            Cancel
+          </button>
+
+        </form>
+
+
+        <div class="search-row">
+
+          <input
+            id="propertySearch"
+            placeholder=" Search properties..."
+          >
+
+          <select id="propertyFilter">
+            <option value="All">All Statuses</option>
+            <option value="Available">Available</option>
+            <option value="Unavailable">Unavailable</option>
+            <option value="Sold">Sold</option>
+            <option value="Rented">Rented</option>
+          </select>
+
+        </div>
+
+        <div id="propertyList"></div>
+
+      </section>
+
+
+      <!-- FOLLOW UPS -->
+
+      <section class="panel">
+
+        <div class="panel-title">
+          <div>
+            <h2> Follow-ups</h2>
+            <p>Never forget to contact a potential customer.</p>
+          </div>
+        </div>
+
+        <div id="followupList"></div>
+
+      </section>
+
+
+      <!-- MATCHES -->
+
+      <section class="panel">
+
+        <div class="panel-title">
+          <div>
+            <h2> Property Matches</h2>
+            <p>Properties matching your customers' requirements.</p>
+          </div>
+        </div>
+
+        <div id="matchList"></div>
+
+      </section>
+
+    </section>
+
+
+    <!-- ================= ADMIN DASHBOARD ================= -->
+
+    <section id="adminDashboard" class="hidden">
+
+      <div class="page-title">
+
+        <div>
+          <h1>🛠️ Admin Dashboard</h1>
+          <p>Manage the Real Estate Assistant platform.</p>
+        </div>
+
+      </div>
+
+
+      <!-- ADMIN STATS -->
+
+      <div class="dashboard-grid">
+
+        <div class="stat-card">
+          <span> Total Users</span>
+          <strong id="adminTotalUsers">0</strong>
+        </div>
+
+        <div class="stat-card">
+          <span> Agents</span>
+          <strong id="adminTotalAgents">0</strong>
+        </div>
+
+        <div class="stat-card">
+          <span> Total Leads</span>
+          <strong id="adminTotalLeads">0</strong>
+        </div>
+
+        <div class="stat-card">
+          <span> Properties</span>
+          <strong id="adminTotalProperties">0</strong>
+        </div>
+
+      </div>
+
+
+      <!-- USERS -->
+
+      <section class="panel">
+
+        <div class="panel-title">
+
+          <div>
+            <h2>👥 User Management</h2>
+            <p>Manage registered agents.</p>
+          </div>
+
+        </div>
+
+        <div id="adminUserList"></div>
+
+      </section>
+
+    </section>
+
+  </main>
+
+</section>
+
+
+<script src="app.js"></script>
+
+</body>
+</html>
