@@ -63,6 +63,38 @@
 
     </form>
 
+<button type="button" id="forgotPasswordBtn" class="secondary-btn full">
+  Forgot password?
+</button>
+
+<form id="resetPasswordForm" class="hidden">
+  <label for="newPassword">New password</label>
+  <input
+    type="password"
+    id="newPassword"
+    minlength="6"
+    placeholder="Enter new password"
+    required
+  >
+
+  <label for="confirmNewPassword">Confirm new password</label>
+  <input
+    type="password"
+    id="confirmNewPassword"
+    minlength="6"
+    placeholder="Confirm new password"
+    required
+  >
+
+  <button type="submit" class="primary-btn full" id="saveNewPasswordBtn">
+    Save new password
+  </button>
+
+  <button type="button" id="cancelPasswordResetBtn" class="secondary-btn full">
+    Back to login
+  </button>
+</form>
+
     <div id="authMessage" class="message"></div>
 
   </div>
