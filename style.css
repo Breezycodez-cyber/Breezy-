@@ -426,6 +426,7 @@ textarea {
   background: #1e293b;
   border-color: #38bdf8;
   color: #38bdf8;
+  display: none;
 }
 
 /* Click effect */
