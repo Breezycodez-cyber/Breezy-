@@ -65,6 +65,27 @@ const loginTab =
 const signupTab =
   document.getElementById("signupTab");
 
+const forgotPasswordBtn =
+  document.getElementById("forgotPasswordBtn");
+
+const resetPasswordForm =
+  document.getElementById("resetPasswordForm");
+
+const newPassword =
+  document.getElementById("newPassword");
+
+const confirmNewPassword =
+  document.getElementById("confirmNewPassword");
+
+const saveNewPasswordBtn =
+  document.getElementById("saveNewPasswordBtn");
+
+const cancelPasswordResetBtn =
+  document.getElementById("cancelPasswordResetBtn");
+
+const authTabs =
+  document.querySelector(".auth-tabs");
+
 const logoutBtn =
   document.getElementById("logoutBtn");
 
@@ -122,6 +143,32 @@ function showMessage(text, error = false) {
 
 }
 
+function showPasswordResetForm() {
+  authScreen.classList.remove("hidden");
+  appScreen.classList.add("hidden");
+
+  authForm.classList.add("hidden");
+  resetPasswordForm.classList.remove("hidden");
+  forgotPasswordBtn.classList.add("hidden");
+  authTabs.classList.add("hidden");
+
+  showMessage("Enter and confirm your new password.");
+}
+
+function showLoginForm() {
+  authForm.classList.remove("hidden");
+  resetPasswordForm.classList.add("hidden");
+  forgotPasswordBtn.classList.remove("hidden");
+  authTabs.classList.remove("hidden");
+
+  authPassword.value = "";
+  newPassword.value = "";
+  confirmNewPassword.value = "";
+
+  showAuth();
+  showMessage("");
+}
+
 
 /* =====================================================
    AUTH MODE
@@ -153,6 +200,80 @@ signupTab.addEventListener("click", () => {
 
   showMessage("");
 
+});
+
+forgotPasswordBtn.addEventListener("click", async () => {
+  const email = authEmail.value.trim();
+
+  if (!email) {
+    showMessage("Enter your email address first.", true);
+    authEmail.focus();
+    return;
+  }
+
+  forgotPasswordBtn.disabled = true;
+
+  try {
+    const { error } = await supabaseClient.auth.resetPasswordForEmail(
+      email,
+      {
+        redirectTo: "https://breezycodez-cyber.github.io/Breezy-/"
+      }
+    );
+
+    if (error) throw error;
+
+    showMessage(
+      "If an account exists for this email, check your inbox and spam folder for the reset link."
+    );
+  } catch (error) {
+    console.error(error);
+    showMessage(error.message || "Could not send the reset email.", true);
+  } finally {
+    forgotPasswordBtn.disabled = false;
+  }
+});
+
+resetPasswordForm.addEventListener("submit", async (event) => {
+  event.preventDefault();
+
+  const password = newPassword.value;
+  const confirmation = confirmNewPassword.value;
+
+  if (password.length < 6) {
+    showMessage("Password must contain at least 6 characters.", true);
+    return;
+  }
+
+  if (password !== confirmation) {
+    showMessage("The passwords do not match.", true);
+    return;
+  }
+
+  saveNewPasswordBtn.disabled = true;
+
+  try {
+    const { error } = await supabaseClient.auth.updateUser({
+      password: password
+    });
+
+    if (error) throw error;
+
+    await supabaseClient.auth.signOut();
+
+    showLoginForm();
+    showMessage("Password changed successfully. You can now log in.");
+  } catch (error) {
+    console.error(error);
+    showMessage(error.message || "Password update failed. Try the latest reset email.", true);
+  } finally {
+    saveNewPasswordBtn.disabled = false;
+  }
+});
+
+cancelPasswordResetBtn.addEventListener("click", async () => {
+  await supabaseClient.auth.signOut();
+  showLoginForm();
 });
 
 
@@ -392,6 +513,10 @@ supabaseClient.auth.onAuthStateChange(
     setTimeout(
       async () => {
 
+if (event === "PASSWORD_RECOVERY") {
+  showPasswordResetForm();
+  return;
+}
         if (session) {
 
           currentUser =
@@ -2117,6 +2242,13 @@ function escapeAttr(value) {
 
   }
 
+if (
+  window.location.hash.includes("type=recovery") &&
+  data.session
+) {
+  showPasswordResetForm();
+  return;
+}
 
   if (data.session) {
 
